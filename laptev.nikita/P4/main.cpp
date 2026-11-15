@@ -28,7 +28,7 @@ size_t rmvVow(const char* src, char* dest)
   return j;
 }
 
-char* readLine(size_t* outLen)
+char* readLine(size_t* out_len)
 {
   const size_t INITIAL_CAPACITY = 16;
   size_t capacity = INITIAL_CAPACITY;
@@ -58,7 +58,7 @@ char* readLine(size_t* outLen)
     buffer[length++] = c;
   }
   buffer[length] = '\0';
-  *outLen = length;
+  *out_len = length;
   return buffer;
 }
 
