@@ -3,7 +3,7 @@
 #include <cctype>
 #include <new>
 
-size_t lat_rmv(const char* src, char* dest)
+size_t latRmv(const char* src, char* dest)
 {
   size_t j = 0;
   for (size_t i = 0; src[i] != '\0'; ++i) {
@@ -15,12 +15,11 @@ size_t lat_rmv(const char* src, char* dest)
   return j;
 }
 
-size_t rmv_vow(const char* src, char* dest)
+size_t rmvVow(const char* src, char* dest)
 {
   size_t j = 0;
   for (size_t i = 0; src[i] != '\0'; ++i) {
-    char lower = std::tolower(static_cast< unsigned char >(src[i]));
-
+    const char lower = static_cast< char >(std::tolower(static_cast< unsigned char >(src[i])));
     if (lower != 'a' && lower != 'e' && lower != 'i' && lower != 'o' && lower != 'u') {
       dest[j++] = src[i];
     }
@@ -29,48 +28,69 @@ size_t rmv_vow(const char* src, char* dest)
   return j;
 }
 
-int main()
+char* readLine(size_t* outLen)
 {
-  size_t capacity = 16;
+  const size_t INITIAL_CAPACITY = 16;
+  size_t capacity = INITIAL_CAPACITY;
   size_t length = 0;
 
-  char* input = new (std::nothrow) char[capacity];
-  if (!input) {
-    std::cerr << "Error: Memory allocation failed." << std::endl;
-    return 1;
+  char* buffer = new (std::nothrow) char[capacity];
+  if (!buffer) {
+    return nullptr;
   }
 
-  char c;
-
+  char c = 0;
   while (std::cin.get(c) && c != '\n') {
     if (length + 1 >= capacity) {
       capacity *= 2;
-      char* temp = new (std::nothrow) char[capacity];
+      char* const temp = new (std::nothrow) char[capacity];
       if (!temp) {
-        delete[] input;
-        std::cerr << "Error: Memory allocation failed." << std::endl;
-        return 1;
+        delete[] buffer;
+        return nullptr;
       }
-      std::strcpy(temp, input);
-      delete[] input;
-      input = temp;
-    }
-    input[length++] = c;
-  }
-  input[length] = '\0';
 
-  char* res1 = new (std::nothrow) char[length + 1];
-  char* res2 = new (std::nothrow) char[length + 1];
+      for (size_t i = 0; i < length; ++i) {
+        temp[i] = buffer[i];
+      }
+      delete[] buffer;
+      buffer = temp;
+    }
+    buffer[length++] = c;
+  }
+  buffer[length] = '\0';
+  *outLen = length;
+  return buffer;
+}
+
+int runLabWork()
+{
+  size_t length = 0;
+  char* const input = readLine(&length);
+
+  if (!input) {
+    std::cerr << "Error: Failed to allocate memory." << std::endl;
+    return 1;
+  }
+
+  if (length == 0) {
+    delete[] input;
+    std::cerr << "Error: Empty input." << std::endl;
+    return 1;
+  }
+
+  char* const res1 = new (std::nothrow) char[length + 1];
+  char* const res2 = new (std::nothrow) char[length + 1];
+
   if (!res1 || !res2) {
     delete[] input;
     delete[] res1;
     delete[] res2;
-    std::cerr << "Error: Memory allocation failed." << std::endl;
+    std::cerr << "Error: Failed to allocate memory for results." << std::endl;
     return 1;
   }
 
-  lat_rmv(input, res1);
-  rmv_vow(input, res2);
+  latRmv(input, res1);
+  rmvVow(input, res2);
 
   std::cout << res1 << "\n";
   std::cout << res2 << "\n";
@@ -80,4 +100,9 @@ int main()
   delete[] res2;
 
   return 0;
+}
+
+int main()
+{
+  return runLabWork();
 }
